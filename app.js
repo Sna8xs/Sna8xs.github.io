@@ -1,70 +1,72 @@
-document.addEventListener('DOMContentLoaded', (event) => {
-    const dataDiv = document.getElementById('data');
-    
-    const fetchData = () => {
-      fetch('http://192.168.4.1/data')
-        .then(response => {
-          console.log('Fetch Response:', response);
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then(data => {
-          console.log('Fetched Data:', data);
-          dataDiv.textContent = `Sensor Value: ${data.sensorValue}`;
-        })
-        .catch(error => {
-          console.error('Error fetching data:', error);
-          dataDiv.textContent = 'Error fetching data';
-        });
-    };
-    
-    const sendCommand = (command) => {
-      fetch('http://192.168.4.1/command', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `command=${command}`
-      })
+document.addEventListener('DOMContentLoaded', () => {
+  const dataDiv = document.getElementById('data');
+  
+  const fetchData = () => {
+    fetch('http://192.168.4.1/data')
       .then(response => {
-        console.log('Command Response:', response);
-        return response.text();
+        console.log('Fetch Response:', response);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
       })
       .then(data => {
-        console.log('Command Result:', data);
+        console.log('Fetched Data:', data);
+        dataDiv.textContent = `Sensor Value: ${data.sensorValue}`;
       })
       .catch(error => {
-        console.error('Error sending command:', error);
+        console.error('Error fetching data:', error);
+        dataDiv.textContent = 'Error fetching data';
       });
-    };
+  };
   
-    document.getElementById('arm').addEventListener('click', () => {
-      sendCommand('arm');
+  const sendCommand = (command) => {
+    fetch('http://192.168.4.1/command', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `command=${command}`
+    })
+    .then(response => {
+      console.log('Command Response:', response);
+      return response.text();
+    })
+    .then(data => {
+      console.log('Command Result:', data);
+    })
+    .catch(error => {
+      console.error('Error sending command:', error);
     });
-  
-    document.getElementById('disarm').addEventListener('click', () => {
-      sendCommand('disarm');
-    });
-  
-    document.getElementById('testservo').addEventListener('click', () => {
-      sendCommand('testservo');
-    });
-  
-    fetchData();
-    setInterval(fetchData, 100);
-  
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js').then(registration => {
-          console.log('ServiceWorker registration successful with scope: ', registration.scope);
-        }, err => {
-          console.log('ServiceWorker registration failed: ', err);
-        });
-      });
-    }
+  };
+
+  document.getElementById('arm').addEventListener('click', () => {
+    sendCommand('arm');
   });
+
+  document.getElementById('disarm').addEventListener('click', () => {
+    sendCommand('disarm');
+  });
+
+  document.getElementById('testservo').addEventListener('click', () => {
+    sendCommand('testservo');
+  });
+
+  fetchData();
+  setInterval(fetchData, 100);
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(registration => {
+          console.log('ServiceWorker registration successful with scope:', registration.scope);
+        })
+        .catch(error => {
+          console.error('ServiceWorker registration failed:', error);
+        });
+    });
+  }
+});
 
 /*
 document.addEventListener('DOMContentLoaded', (event) => {

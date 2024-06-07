@@ -1,38 +1,41 @@
-// Define your shared data endpoint
-const SHARED_DATA_ENDPOINT = '/token';
+// Define the cache name
+const CACHE_NAME = 'propulsopod-cache-v1';
 
-// Activate clients immediately to ensure service worker takes control
-self.addEventListener('activate', event => {
-  event.waitUntil(clients.claim());
+// Define the URLs to cache
+const URLS_TO_CACHE = [
+  '/',
+  '/index.html',
+  '/index.css',
+  '/app.js',
+  '/manifest.json',
+  '/icon.png'
+];
+
+// Listen for the install event
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => {
+      console.log('Opened cache');
+      return cache.addAll(URLS_TO_CACHE);
+    }).catch(error => {
+      console.error('Error caching files:', error);
+    })
+  );
 });
 
-// Listen for fetch events
+// Listen for the fetch event
 self.addEventListener('fetch', event => {
-  const { request, request: { url, method } } = event;
-  
-  // Check if the request matches the shared data endpoint
-  if (url.match(SHARED_DATA_ENDPOINT)) {
-    if (method === 'POST') {
-      // If it's a POST request, save the request body to cache
-      request.json().then(body => {
-        caches.open(SHARED_DATA_ENDPOINT).then(cache => {
-          cache.put(SHARED_DATA_ENDPOINT, new Response(JSON.stringify(body)));
-        });
-      });
-      // Respond with an empty response
-      return new Response('{}');
-    } else {
-      // If it's a GET request, try to retrieve data from cache
-      event.respondWith(
-        caches.open(SHARED_DATA_ENDPOINT).then(cache => {
-          return cache.match(SHARED_DATA_ENDPOINT).then(response => {
-            return response || new Response('{}');
-          }) || new Response('{}');
-        })
-      );
-    }
-  } else {
-    // If the request is not for the shared data endpoint, proceed as normal
-    return event;
-  }
+  event.respondWith(
+    caches.match(event.request).then(response => {
+      if (response) {
+        console.log('Found in cache:', event.request.url);
+        return response;
+      }
+      console.log('Fetching from network:', event.request.url);
+      return fetch(event.request);
+    }).catch(error => {
+      console.error('Error fetching from cache:', error);
+      return new Response('Offline');
+    })
+  );
 });
