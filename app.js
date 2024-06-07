@@ -48,10 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
     sendCommand('disarm');
   });
 
-  document.getElementById('testservo').addEventListener('click', () => {
-    sendCommand('testservo');
-  });
-
   fetchData();
   setInterval(fetchData, 100);
 
