@@ -22,7 +22,7 @@ self.addEventListener('install', event => {
     })
   );
 });
-/*
+
 // Listen for the fetch event
 self.addEventListener('fetch', event => {
   event.respondWith(
@@ -39,4 +39,3 @@ self.addEventListener('fetch', event => {
     })
   );
 });
-*/
