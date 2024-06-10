@@ -1,5 +1,5 @@
 // Define the cache name
-const CACHE_NAME = 'propulsopod-cache-v1';
+const CACHE_NAME = 'propulsopod';
 
 // Define the URLs to cache
 const URLS_TO_CACHE = [
@@ -22,7 +22,7 @@ self.addEventListener('install', event => {
     })
   );
 });
-
+/*
 // Listen for the fetch event
 self.addEventListener('fetch', event => {
   event.respondWith(
@@ -39,3 +39,4 @@ self.addEventListener('fetch', event => {
     })
   );
 });
+*/
